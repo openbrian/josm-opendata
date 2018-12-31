@@ -117,6 +117,8 @@ public class ShpReader extends GeographicReader {
 
             Object geomObject = geometry.getValue();
             if (geomObject instanceof Point) {  // TODO: Support LineString and Polygon.
+                // Sure you could have a Set of 1 object and join these 2 branches of
+                // code, but I feel there would be a performance hit.
                 OsmPrimitive primitive = createOrGetEmptyNode((Point) geomObject);
                 readNonGeometricAttributes(feature, primitive);
             } else if (geomObject instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
