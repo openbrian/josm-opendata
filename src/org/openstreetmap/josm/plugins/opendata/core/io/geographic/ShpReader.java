@@ -120,43 +120,7 @@ public class ShpReader extends GeographicReader {
                 OsmPrimitive primitive = createOrGetEmptyNode((Point) geometry.getValue());
                 readNonGeometricAttributes(feature, primitive);
             } else if (geomObject instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
-                // A feture may be a collection.  This set holds the items of the collection.
-                Set<OsmPrimitive> primitives = new HashSet<>();
-
-                GeometryCollection gc = (GeometryCollection) geomObject;
-                int nGeometries = gc.getNumGeometries();
-                if (nGeometries < 1) {
-                    Logging.error("empty geometry collection found");
-                } else {
-                    // Create the primitive "op" and add it to the set of primitives.
-                    for (int i = 0; i < nGeometries; i++) {
-                        OsmPrimitive op = null;
-                        Geometry g = gc.getGeometryN(i);
-                        if (g instanceof Polygon) {
-                            Relation r = (Relation) op;
-                            Polygon p = (Polygon) g;
-                            // Do not create relation if there's only one polygon without interior ring
-                            // except if handler prefers it
-                            if (r == null && (nGeometries > 1 || p.getNumInteriorRing() > 0 ||
-                                    (handler != null && handler.preferMultipolygonToSimpleWay()))) {
-                                r = createMultipolygon();
-                            }
-                            if (r != null) {
-                                addWayToMp(r, "outer", createOrGetWay(p.getExteriorRing()));
-                                for (int j = 0; j < p.getNumInteriorRing(); j++) {
-                                    addWayToMp(r, "inner", createOrGetWay(p.getInteriorRingN(j)));
-                                }
-                            }
-                        } else if (g instanceof LineString) {
-                            op = createOrGetWay((LineString) g);
-                        } else if (g instanceof Point) {
-                            op = createOrGetNode((Point) g);
-                        } else {
-                            Logging.error("unsupported geometry : "+g);
-                        }
-                        primitives.add(op);
-                    }
-                }
+                Set<OsmPrimitive> primitives = processGeometryCollection((GeometryCollection) geomObject);
                 for (OsmPrimitive prim : primitives) {
                     readNonGeometricAttributes(feature, prim);
                 }
@@ -171,6 +135,45 @@ public class ShpReader extends GeographicReader {
                 Logging.debug("-------------------------------------------------------------");
             }
         }
+    }
+
+    protected Set<OsmPrimitive> processGeometryCollection(GeometryCollection gc) throws TransformException {
+        // A feture may be a collection.  This set holds the items of the collection.
+        Set<OsmPrimitive> primitives = new HashSet<>();
+        int nGeometries = gc.getNumGeometries();
+        if (nGeometries < 1) {
+            Logging.error("empty geometry collection found");
+        } else {
+            // Create the primitive "op" and add it to the set of primitives.
+            for (int i = 0; i < nGeometries; i++) {
+                OsmPrimitive op = null;
+                Geometry g = gc.getGeometryN(i);
+                if (g instanceof Polygon) {
+                    Relation r = (Relation) op;
+                    Polygon p = (Polygon) g;
+                    // Do not create relation if there's only one polygon without interior ring
+                    // except if handler prefers it
+                    if (r == null && (nGeometries > 1 || p.getNumInteriorRing() > 0 ||
+                            (handler != null && handler.preferMultipolygonToSimpleWay()))) {
+                        r = createMultipolygon();
+                    }
+                    if (r != null) {
+                        addWayToMp(r, "outer", createOrGetWay(p.getExteriorRing()));
+                        for (int j = 0; j < p.getNumInteriorRing(); j++) {
+                            addWayToMp(r, "inner", createOrGetWay(p.getInteriorRingN(j)));
+                        }
+                    }
+                } else if (g instanceof LineString) {
+                    op = createOrGetWay((LineString) g);
+                } else if (g instanceof Point) {
+                    op = createOrGetNode((Point) g);
+                } else {
+                    Logging.error("unsupported geometry : "+g);
+                }
+                primitives.add(op);
+            }
+        }
+        return primitives;
     }
 
     public DataSet parse(File file, ProgressMonitor instance) throws IOException {
