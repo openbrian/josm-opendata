@@ -121,8 +121,8 @@ public class ShpReader extends GeographicReader {
                 primitive = createOrGetEmptyNode((Point) geometry.getValue());
 
             } else if (geometry.getValue() instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
-                GeometryCollection mp = (GeometryCollection) geometry.getValue();
-                int nGeometries = mp.getNumGeometries();
+                GeometryCollection gc = (GeometryCollection) geometry.getValue();
+                int nGeometries = gc.getNumGeometries();
                 if (nGeometries < 1) {
                     Logging.error("empty geometry collection found");
                 } else {
@@ -130,7 +130,7 @@ public class ShpReader extends GeographicReader {
                     Way w = null;
 
                     for (int i = 0; i < nGeometries; i++) {
-                        Geometry g = mp.getGeometryN(i);
+                        Geometry g = gc.getGeometryN(i);
                         if (g instanceof Polygon) {
                             Polygon p = (Polygon) g;
                             // Do not create relation if there's only one polygon without interior ring
