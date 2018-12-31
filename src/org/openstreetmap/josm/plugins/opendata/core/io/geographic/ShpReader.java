@@ -117,11 +117,11 @@ public class ShpReader extends GeographicReader {
 
             OsmPrimitive primitive = null;
 
-            if (geometry.getValue() instanceof Point) {
+            Object geomObject = geometry.getValue();
+            if (geomObject instanceof Point) {  // TODO: Support LineString and Polygon.
                 primitive = createOrGetEmptyNode((Point) geometry.getValue());
-
-            } else if (geometry.getValue() instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
-                GeometryCollection gc = (GeometryCollection) geometry.getValue();
+            } else if (geomObject instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
+                GeometryCollection gc = (GeometryCollection) geomObject;
                 int nGeometries = gc.getNumGeometries();
                 if (nGeometries < 1) {
                     Logging.error("empty geometry collection found");
