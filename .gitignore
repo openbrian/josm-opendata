@@ -1,0 +1,11 @@
+MANIFEST
+bin
+bintest
+build
+checkstyle-josm-opendata.xml
+findbugs-josm-opendata.xml
+includes/neptune
+javadoc
+*.properties
+test/jacoco.exec
+test/report/
