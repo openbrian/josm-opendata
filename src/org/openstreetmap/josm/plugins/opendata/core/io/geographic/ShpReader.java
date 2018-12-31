@@ -117,7 +117,7 @@ public class ShpReader extends GeographicReader {
 
             Object geomObject = geometry.getValue();
             if (geomObject instanceof Point) {  // TODO: Support LineString and Polygon.
-                OsmPrimitive primitive = createOrGetEmptyNode((Point) geometry.getValue());
+                OsmPrimitive primitive = createOrGetEmptyNode((Point) geomObject);
                 readNonGeometricAttributes(feature, primitive);
             } else if (geomObject instanceof GeometryCollection) { // Deals with both MultiLineString and MultiPolygon
                 Set<OsmPrimitive> primitives = processGeometryCollection((GeometryCollection) geomObject);
@@ -130,7 +130,7 @@ public class ShpReader extends GeographicReader {
                 Logging.debug("\tbounds: "+geometry.getBounds());
                 Logging.debug("\tdescriptor: "+desc);
                 Logging.debug("\tname: "+geometry.getName());
-                Logging.debug("\tvalue: "+geometry.getValue());
+                Logging.debug("\tvalue: "+geomObject);
                 Logging.debug("\tid: "+geometry.getIdentifier());
                 Logging.debug("-------------------------------------------------------------");
             }
