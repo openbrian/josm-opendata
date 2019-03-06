@@ -94,7 +94,7 @@ public class ShpReaderTest {
      */
     @Test
     public void testTicket13843() throws Exception {
-        // TODO: The test/data/regress/12843 directory needs to be renamed to 13843.
+        // TODO: The test/data/regress/12843 directory needs to be renamed (svn mv) to 13843.
         File file = new File(TestUtils.getRegressionDataFile(12843, "test.shp"));
         try (InputStream is = new FileInputStream(file)) {
             Collection<Way> ways = ShpReader.parseDataSet(is, file, null, null).getWays();
